@@ -168,20 +168,29 @@ Attempting to redirect to any non-`.test` domain will result in a 403 Forbidden 
 
 ### Endpoints
 
+**GET /**
+
+Redirects to the project's GitHub repository.
+
+**Responses:**
+- `302 Found` - Redirects to `https://github.com/grey-studio/forward.direct`
+
 **GET /{targetUrl}**
 
 Redirects to the specified target URL if it's a valid `.test` domain.
 
 **Parameters:**
-- `targetUrl` - The target URL to redirect to, with optional protocol
+- `targetUrl` - The target URL to redirect to, with optional protocol (defaults to HTTP if not specified)
 
 **Responses:**
 - `302 Found` - Successful redirect with `Location` header
-- `400 Bad Request` - Invalid or missing target URL
 - `403 Forbidden` - Target URL is not a `.test` domain
 
 **Examples:**
 ```bash
+# Root path redirects to GitHub
+curl -i https://forward.direct/
+
 # Redirect with explicit protocol
 curl -i https://forward.direct/https://app.test/callback
 

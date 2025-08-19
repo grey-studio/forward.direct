@@ -5,16 +5,14 @@ import worker from '../src/index';
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
 describe('Forward Direct worker', () => {
-	it('shows usage instructions on root path', async () => {
+	it('redirects to GitHub repository on root path', async () => {
 		const request = new IncomingRequest('https://example.com/');
 		const ctx = createExecutionContext();
 		const response = await worker.fetch(request, env, ctx);
 		await waitOnExecutionContext(ctx);
 		
-		expect(response.status).toBe(400);
-		const text = await response.text();
-		expect(text).toContain('Forward Direct');
-		expect(text).toContain('Usage:');
+		expect(response.status).toBe(302);
+		expect(response.headers.get('Location')).toBe('https://github.com/grey-studio/forward.direct');
 	});
 
 	it('rejects non-.test domains', async () => {
@@ -79,14 +77,14 @@ describe('Forward Direct worker', () => {
 		expect(response.headers.get('Location')).toBe('http://laravel-app.test/auth/github/callback?code=abc123&state=xyz789');
 	});
 
-	it('defaults to HTTPS when no protocol is specified', async () => {
+	it('defaults to HTTP when no protocol is specified', async () => {
 		const request = new IncomingRequest('https://example.com/myapp.test/auth/callback');
 		const ctx = createExecutionContext();
 		const response = await worker.fetch(request, env, ctx);
 		await waitOnExecutionContext(ctx);
 		
 		expect(response.status).toBe(302);
-		expect(response.headers.get('Location')).toBe('https://myapp.test/auth/callback');
+		expect(response.headers.get('Location')).toBe('http://myapp.test/auth/callback');
 	});
 
 	it('preserves query parameters with optional protocol', async () => {
@@ -96,7 +94,7 @@ describe('Forward Direct worker', () => {
 		await waitOnExecutionContext(ctx);
 		
 		expect(response.status).toBe(302);
-		expect(response.headers.get('Location')).toBe('https://spotify-app.test/auth/callback?code=spotify123&state=random');
+		expect(response.headers.get('Location')).toBe('http://spotify-app.test/auth/callback?code=spotify123&state=random');
 	});
 
 	it('still works with explicit HTTP protocol', async () => {

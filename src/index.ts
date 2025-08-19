@@ -42,10 +42,12 @@ export default {
 		const targetUrl = extractTargetUrl(url.pathname);
 
 		if ( !targetUrl) {
-			return new Response(
-				'Forward Direct - URL forwarding service for .test domains\n\nUsage: https://forward.direct/http://social.test/service/callback',
-				{ status: 400, headers: { 'Content-Type': 'text/plain' } }
-			);
+			return new Response(null, {
+				status: 302,
+				headers: {
+					'Location': 'https://github.com/grey-studio/forward.direct'
+				}
+			});
 		}
 
 		if ( !isValidTestDomain(targetUrl)) {
