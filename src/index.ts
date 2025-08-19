@@ -1,18 +1,67 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+function extractTargetUrl(pathname: string): string | null {
+	if (pathname === '/') {
+		return null;
+	}
+
+	let targetUrl = pathname.substring(1);
+
+	if ( !targetUrl) {
+		return null;
+	}
+
+	if ( !targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+		targetUrl = 'http://' + targetUrl;
+	}
+
+	return targetUrl;
+}
+
+function isValidTestDomain(url: string): boolean {
+	try {
+		const parsedUrl = new URL(url);
+		return parsedUrl.hostname.endsWith('.test');
+	} catch {
+		return false;
+	}
+}
+
+function buildRedirectUrl(targetUrl: string, originalUrl: URL): string {
+	const targetUrlObj = new URL(targetUrl);
+
+	if (originalUrl.search) {
+		targetUrlObj.search = originalUrl.search;
+	}
+
+	return targetUrlObj.toString();
+}
+
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
-	},
+		const url = new URL(request.url);
+		const targetUrl = extractTargetUrl(url.pathname);
+
+		if ( !targetUrl) {
+			return new Response(
+				'Forward Direct - URL forwarding service for .test domains\n\nUsage: https://forward.direct/http://social.test/service/callback',
+				{ status: 400, headers: { 'Content-Type': 'text/plain' } }
+			);
+		}
+
+		if ( !isValidTestDomain(targetUrl)) {
+			return new Response(
+				'Error: Only .test domains are allowed for security reasons',
+				{ status: 403, headers: { 'Content-Type': 'text/plain' } }
+			);
+		}
+
+		const redirectUrl = buildRedirectUrl(targetUrl, url);
+
+		return new Response(null, {
+			status: 302,
+			headers: {
+				'Location': redirectUrl
+			}
+		});
+	}
 } satisfies ExportedHandler<Env>;
