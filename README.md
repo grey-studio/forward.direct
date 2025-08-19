@@ -44,11 +44,11 @@ upgrade the request to HTTPS), avoiding the double protocol issue while maintain
 
 ## Features
 
-- 🔒 **Secure** - Only allows redirects to `.test` domains
-- 🚀 **Fast** - Built on Cloudflare Workers edge network
-- 🔗 **Flexible** - Supports both explicit and implicit protocols
-- 📦 **Simple** - No data storage, just redirects
-- 🆓 **Open Source** - Deploy your own instance
+- **Secure** - Only allows redirects to `.test` domains
+- **Fast** - Built on Cloudflare Workers edge network
+- **Flexible** - Supports both explicit and implicit protocols
+- **Simple** - No data storage, just redirects
+- **Open Source** - Deploy your own instance
 
 ## Usage
 
